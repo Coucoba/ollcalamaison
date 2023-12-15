@@ -3,6 +3,8 @@ package com.univrouen.ollcalamaison.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
+
 @Builder
 @Data
 public class DeliveryPersonDto {
@@ -13,4 +15,5 @@ public class DeliveryPersonDto {
 
     private boolean isAvailable;
 
+    private Instant creation;
 }

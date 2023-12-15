@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Data;
 
+import java.time.Instant;
+
 @Entity
 @Data
 public class DeliveryPersonEntity {
@@ -15,4 +17,6 @@ public class DeliveryPersonEntity {
     private String last_name;
 
     private boolean isAvailable;
+
+    private Instant creation;
 }
