@@ -4,22 +4,27 @@ import com.univrouen.ollcalamaison.dto.DeliveryPersonDto;
 import com.univrouen.ollcalamaison.exceptions.DeliveryPersonNotFoundException;
 import com.univrouen.ollcalamaison.services.DeliveryPersonService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/delivreryperson")
+@RequestMapping("/delivrerypersons")
 public class DeliveryPersonController {
 
     private DeliveryPersonService deliveryPersonService;
 
     @GetMapping()
-    public ResponseEntity<List<DeliveryPersonDto>> getAllDeliveryPersons(){
-        List<DeliveryPersonDto> deliveryPersons = deliveryPersonService.findAllDeliveryPerson();
+    public ResponseEntity<Page<DeliveryPersonDto>> getAllDeliveryPersonsPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<DeliveryPersonDto> deliveryPersons = deliveryPersonService.findAllDeliveryPersonsPaged(page, size);
         return new ResponseEntity<>(deliveryPersons, HttpStatus.OK);
     }
 
@@ -45,5 +50,34 @@ public class DeliveryPersonController {
     public ResponseEntity<Void> deleteDeliveryPersonById(@PathVariable Long id) throws DeliveryPersonNotFoundException {
         deliveryPersonService.deleteByIdDeliveryPerson(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<DeliveryPersonDto>> findDeliveryPersonsWithFilter(
+            @RequestParam(required = false) Boolean isAvailable,
+            @RequestParam(required = false) Instant createdAfter,
+            @RequestParam(required = false) Instant createdBefore
+    ) {
+        List<DeliveryPersonDto> filteredDeliveryPersons = deliveryPersonService
+                .findDeliveryPersonsWithFilter(isAvailable, createdAfter, createdBefore);
+        return new ResponseEntity<>(filteredDeliveryPersons, HttpStatus.OK);
+    }
+
+    @GetMapping("/sorted/name")
+    public ResponseEntity<Page<DeliveryPersonDto>> getAllDeliveryPersonsSortedByNamePaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        Page<DeliveryPersonDto> sortedDeliveryPersons = deliveryPersonService.getAllDeliveryPersonsSortedByNamePaged(page, size);
+        return new ResponseEntity<>(sortedDeliveryPersons, HttpStatus.OK);
+    }
+
+    @GetMapping("/sorted/creation")
+    public ResponseEntity<Page<DeliveryPersonDto>> getAllDeliveryPersonsSortedByCreationPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<DeliveryPersonDto> sortedDeliveryPersons = deliveryPersonService.getAllDeliveryPersonsSortedByCreationPaged(page, size);
+        return new ResponseEntity<>(sortedDeliveryPersons, HttpStatus.OK);
     }
 }

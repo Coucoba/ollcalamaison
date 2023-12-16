@@ -7,9 +7,14 @@ import com.univrouen.ollcalamaison.repositories.DeliveryPersonRepository;
 import jakarta.validation.Validator;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -25,9 +30,12 @@ public class DeliveryPersonService {
         return modelMapper.map(deliveryPersonRepository.save(entity), DeliveryPersonDto.class);
     }
 
-    public List<DeliveryPersonDto> findAllDeliveryPerson(){
+    public Page<DeliveryPersonDto> findAllDeliveryPersonsPaged(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
 
-        return deliveryPersonRepository.findAll().stream().map(e -> modelMapper.map(e, DeliveryPersonDto.class)).toList();
+        Page<DeliveryPersonEntity> deliveryPersonPage = deliveryPersonRepository.findAll(pageRequest);
+
+        return deliveryPersonPage.map(entity -> modelMapper.map(entity, DeliveryPersonDto.class));
     }
 
     public DeliveryPersonDto findByIdDeliveryPerson(Long id) throws DeliveryPersonNotFoundException {
@@ -35,10 +43,6 @@ public class DeliveryPersonService {
             throw new DeliveryPersonNotFoundException();
         }
         return modelMapper.map(deliveryPersonRepository.findById(id), DeliveryPersonDto.class);
-    }
-
-    public List<DeliveryPersonDto> findByIsAvailable() {
-        return deliveryPersonRepository.findBy()
     }
 
     public void deleteByIdDeliveryPerson(Long id) throws DeliveryPersonNotFoundException{
@@ -62,5 +66,40 @@ public class DeliveryPersonService {
         DeliveryPersonEntity updateDeliveryPersonEntity = deliveryPersonRepository.save(actualDeliveryPeronEntity);
 
         return modelMapper.map(updateDeliveryPersonEntity, DeliveryPersonDto.class);
+    }
+
+    public List<DeliveryPersonDto> findDeliveryPersonsWithFilter(Boolean isAvailable, Instant createdAfter, Instant createdBefore) {
+        List<DeliveryPersonEntity> filteredPersons = deliveryPersonRepository.findAll()
+                .stream()
+                .filter(person -> (isAvailable == null || person.isAvailable() == isAvailable)
+                        && (createdAfter == null || person.getCreation().isAfter(createdAfter))
+                        && (createdBefore == null || person.getCreation().isBefore(createdBefore)))
+                .toList();
+
+        return filteredPersons.stream()
+                .map(entity -> modelMapper.map(entity, DeliveryPersonDto.class))
+                .collect(Collectors.toList());
+    }
+
+    public Page<DeliveryPersonDto> getAllDeliveryPersonsSortedByNamePaged(int page, int size) {
+        Sort sort = Sort.by(
+                Sort.Order.asc("last_name"),
+                Sort.Order.asc("first_name")
+        );
+
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<DeliveryPersonEntity> sortedPersonsPage = deliveryPersonRepository.findAll(pageRequest);
+
+        return sortedPersonsPage.map(entity -> modelMapper.map(entity, DeliveryPersonDto.class));
+    }
+
+    public Page<DeliveryPersonDto> getAllDeliveryPersonsSortedByCreationPaged(int page, int size) {
+        Sort sort = Sort.by(Sort.Order.desc("creation"));
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        Page<DeliveryPersonEntity> sortedPersonsPage = deliveryPersonRepository.findAll(pageRequest);
+
+        return sortedPersonsPage.map(entity -> modelMapper.map(entity, DeliveryPersonDto.class));
     }
 }
