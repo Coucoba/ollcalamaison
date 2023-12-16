@@ -2,6 +2,7 @@ package com.univrouen.ollcalamaison.controllers;
 
 import com.univrouen.ollcalamaison.dto.DeliveryPersonDto;
 import com.univrouen.ollcalamaison.exceptions.DeliveryPersonNotFoundException;
+import com.univrouen.ollcalamaison.exceptions.DtoNotValidException;
 import com.univrouen.ollcalamaison.services.DeliveryPersonService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,7 +30,7 @@ public class DeliveryPersonController {
     }
 
     @PostMapping()
-    public ResponseEntity<DeliveryPersonDto> create(@RequestBody DeliveryPersonDto deliveryPersonDto){
+    public ResponseEntity<DeliveryPersonDto> create(@RequestBody DeliveryPersonDto deliveryPersonDto) throws DtoNotValidException {
         var deliveryPerson = deliveryPersonService.createDeliveryPerson(deliveryPersonDto);
         return new ResponseEntity<>(deliveryPerson, HttpStatus.CREATED);
     }

@@ -3,6 +3,7 @@ package com.univrouen.ollcalamaison.services;
 import com.univrouen.ollcalamaison.dto.DeliveryPersonDto;
 import com.univrouen.ollcalamaison.entities.DeliveryPersonEntity;
 import com.univrouen.ollcalamaison.exceptions.DeliveryPersonNotFoundException;
+import com.univrouen.ollcalamaison.exceptions.DtoNotValidException;
 import com.univrouen.ollcalamaison.repositories.DeliveryPersonRepository;
 import jakarta.validation.Validator;
 import lombok.AllArgsConstructor;
@@ -24,8 +25,12 @@ public class DeliveryPersonService {
     private ModelMapper modelMapper;
     private Validator validator;
 
-    public DeliveryPersonDto createDeliveryPerson(DeliveryPersonDto dto) {
+    public DeliveryPersonDto createDeliveryPerson(DeliveryPersonDto dto) throws DtoNotValidException {
         var exception = validator.validate(dto);
+        if(!exception.isEmpty()){
+            throw new DtoNotValidException();
+        }
+
         DeliveryPersonEntity entity = modelMapper.map(dto, DeliveryPersonEntity.class);
         return modelMapper.map(deliveryPersonRepository.save(entity), DeliveryPersonDto.class);
     }
