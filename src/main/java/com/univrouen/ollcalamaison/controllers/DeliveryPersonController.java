@@ -44,7 +44,7 @@ public class DeliveryPersonController implements DeliveryPersonApi {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<DeliveryPersonDto> updateDeliveryPersonById(@PathVariable Long id, @RequestBody DeliveryPersonDto deliveryPersonDto) throws DeliveryPersonNotFoundException {
+    public ResponseEntity<DeliveryPersonDto> updateDeliveryPersonById(@PathVariable Long id, @RequestBody DeliveryPersonDto deliveryPersonDto) throws DeliveryPersonNotFoundException, DtoNotValidException {
         DeliveryPersonDto updateDeliveryPerson = deliveryPersonService.updateByIdDeliveryPerson(deliveryPersonDto, id);
         return new ResponseEntity<>(updateDeliveryPerson, HttpStatus.OK);
     }

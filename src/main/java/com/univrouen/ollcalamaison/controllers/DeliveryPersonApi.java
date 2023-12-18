@@ -56,7 +56,7 @@ public interface DeliveryPersonApi {
             @ApiResponse(responseCode = "404", description = "Delivery person not found"),
             @ApiResponse(responseCode = "405", description = "Validation exception")
     })
-   ResponseEntity<DeliveryPersonDto> updateDeliveryPersonById(@PathVariable Long id, @RequestBody DeliveryPersonDto deliveryPersonDto) throws DeliveryPersonNotFoundException;
+   ResponseEntity<DeliveryPersonDto> updateDeliveryPersonById(@PathVariable Long id, @RequestBody DeliveryPersonDto deliveryPersonDto) throws DeliveryPersonNotFoundException, DtoNotValidException;
 
     @Operation(summary = "Delete a delivery person")
     @ApiResponses(value = {
