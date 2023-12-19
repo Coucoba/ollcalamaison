@@ -14,12 +14,11 @@ import java.util.List;
 @Repository
 public interface TourRepository extends JpaRepository<TourEntity, Long> {
 
-    @Query("SELECT t FROM TourEntity t WHERE t.deliveryPerson.id = :deliveryPersonId")
     Page<TourEntity> findByDeliveryPersonId(@Param("deliveryPersonId") Long deliveryPersonId, Pageable pageable);
 
     @Query("SELECT t FROM TourEntity t " +
             "WHERE t.deliveryPerson.id = :deliveryPersonId " +
-            "AND ((t.start BETWEEN :tourStart AND :tourEnd) OR (t.end BETWEEN :tourStart AND :tourEnd))")
+            "AND ((t.startDate BETWEEN :tourStart AND :tourEnd) OR (t.endDate BETWEEN :tourStart AND :tourEnd))")
     List<TourEntity> findOverlappingTours(
             @Param("deliveryPersonId") Long deliveryPersonId,
             @Param("tourStart") Instant tourStart,
@@ -27,6 +26,6 @@ public interface TourRepository extends JpaRepository<TourEntity, Long> {
     );
 
     @Query("SELECT t FROM TourEntity t " +
-            "WHERE (t.start <= :searchDate AND t.end >= :searchDate)")
+            "WHERE (t.startDate <= :searchDate AND t.endDate >= :searchDate)")
     List<TourEntity> findByDate(@Param("searchDate") Instant searchDate);
 }

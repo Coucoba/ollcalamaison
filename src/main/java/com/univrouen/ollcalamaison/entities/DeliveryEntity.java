@@ -1,9 +1,6 @@
 package com.univrouen.ollcalamaison.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -11,6 +8,7 @@ import lombok.Data;
 public class DeliveryEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String pickupAddress;
@@ -18,6 +16,5 @@ public class DeliveryEntity {
     private String depositAddress;
 
     @ManyToOne
-    @JoinColumn(name = "tour_id")
     private TourEntity tour;
 }

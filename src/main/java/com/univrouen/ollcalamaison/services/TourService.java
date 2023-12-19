@@ -45,8 +45,8 @@ public class TourService {
                 tourRepository.findById(id).orElseThrow(TourNotFoundException::new);
 
         actualTourEntity.setName(tourDto.getName());
-        actualTourEntity.setStart(tourDto.getStart());
-        actualTourEntity.setEnd(tourDto.getEnd());
+        actualTourEntity.setStartDate(tourDto.getStart());
+        actualTourEntity.setEndDate(tourDto.getEnd());
 
         TourEntity updateTourEntity = tourRepository.save(actualTourEntity);
 

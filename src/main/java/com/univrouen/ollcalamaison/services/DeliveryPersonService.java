@@ -1,10 +1,10 @@
 package com.univrouen.ollcalamaison.services;
 
-import com.univrouen.ollcalamaison.dto.DeliveryPersonDto;
+import com.univrouen.ollcalamaison.dto.output.DeliveryPersonDto;
+import com.univrouen.ollcalamaison.dto.input.InputDeliveryPersonDto;
 import com.univrouen.ollcalamaison.entities.DeliveryPersonEntity;
 import com.univrouen.ollcalamaison.exceptions.DeliveryPersonNotFoundException;
 import com.univrouen.ollcalamaison.exceptions.DtoNotValidException;
-import com.univrouen.ollcalamaison.exceptions.TourNotFoundException;
 import com.univrouen.ollcalamaison.repositories.DeliveryPersonRepository;
 import jakarta.validation.Validator;
 import lombok.AllArgsConstructor;
@@ -27,11 +27,11 @@ public class DeliveryPersonService {
     private Validator validator;
 
 
-    public DeliveryPersonDto createDeliveryPerson(DeliveryPersonDto dto) throws DtoNotValidException {
+    public DeliveryPersonDto createDeliveryPerson(InputDeliveryPersonDto dto) throws DtoNotValidException {
         validateDto(dto);
-
-        DeliveryPersonEntity entity = modelMapper.map(dto, DeliveryPersonEntity.class);
-        return modelMapper.map(deliveryPersonRepository.save(entity), DeliveryPersonDto.class);
+        DeliveryPersonEntity deliveryPerson = modelMapper.map(dto, DeliveryPersonEntity.class);
+        deliveryPerson.setCreation(Instant.now());
+        return modelMapper.map(deliveryPersonRepository.save(deliveryPerson), DeliveryPersonDto.class);
     }
 
     public Page<DeliveryPersonDto> findAllDeliveryPersonsPaged(int page, int size) {
@@ -52,7 +52,7 @@ public class DeliveryPersonService {
         deliveryPersonRepository.deleteById(id);
     }
 
-    public DeliveryPersonDto updateByIdDeliveryPerson(DeliveryPersonDto deliveryPersonDto, Long id) throws DeliveryPersonNotFoundException, DtoNotValidException {
+    public DeliveryPersonDto updateByIdDeliveryPerson(InputDeliveryPersonDto deliveryPersonDto, Long id) throws DeliveryPersonNotFoundException, DtoNotValidException {
         checkDeliveryPersonExists(id);
         validateDto(deliveryPersonDto);
 
@@ -60,8 +60,8 @@ public class DeliveryPersonService {
                 deliveryPersonRepository.findById(id).orElseThrow(DeliveryPersonNotFoundException::new);
 
         actualDeliveryPeronEntity.setAvailable(deliveryPersonDto.isAvailable());
-        actualDeliveryPeronEntity.setFirst_name(deliveryPersonDto.getFirstName());
-        actualDeliveryPeronEntity.setLast_name(deliveryPersonDto.getLastName());
+        actualDeliveryPeronEntity.setFirst_name(deliveryPersonDto.getFirst_Name());
+        actualDeliveryPeronEntity.setLast_name(deliveryPersonDto.getLast_Name());
 
         DeliveryPersonEntity updateDeliveryPersonEntity = deliveryPersonRepository.save(actualDeliveryPeronEntity);
 

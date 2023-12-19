@@ -11,18 +11,18 @@ import java.util.List;
 public class TourEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
 
-    private Instant start;
+    private Instant startDate;
 
-    private Instant end;
+    private Instant endDate;
 
     @ManyToOne
-    @JoinColumn(name = "delivery_person_id")
     private DeliveryPersonEntity deliveryPerson;
 
-    @OneToMany(mappedBy = "tour", cascade =  CascadeType.ALL)
+    @OneToMany
     private List<DeliveryEntity> deliveries;
 }

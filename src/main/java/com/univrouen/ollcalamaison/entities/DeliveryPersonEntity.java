@@ -1,18 +1,23 @@
 package com.univrouen.ollcalamaison.entities;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class DeliveryPersonEntity {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String first_name;
@@ -23,6 +28,6 @@ public class DeliveryPersonEntity {
 
     private Instant creation;
 
-    @OneToMany(mappedBy = "deliveryPerson", cascade = CascadeType.ALL)
-    private List<TourEntity> tours;
+    @OneToMany
+    private Set<TourEntity> tours;
 }
