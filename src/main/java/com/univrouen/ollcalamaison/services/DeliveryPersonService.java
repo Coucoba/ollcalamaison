@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,7 +54,6 @@ public class DeliveryPersonService {
     }
 
     public DeliveryPersonDto updateByIdDeliveryPerson(InputDeliveryPersonDto deliveryPersonDto, Long id) throws DeliveryPersonNotFoundException, DtoNotValidException {
-        checkDeliveryPersonExists(id);
         validateDto(deliveryPersonDto);
 
         DeliveryPersonEntity actualDeliveryPeronEntity =
@@ -82,23 +82,17 @@ public class DeliveryPersonService {
     }
 
     public Page<DeliveryPersonDto> getAllDeliveryPersonsSortedByNamePaged(int page, int size) {
-        Sort sort = Sort.by(
-                Sort.Order.asc("last_name"),
-                Sort.Order.asc("first_name")
-        );
-
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
-
-        Page<DeliveryPersonEntity> sortedPersonsPage = deliveryPersonRepository.findAll(pageRequest);
-
-        return sortedPersonsPage.map(entity -> modelMapper.map(entity, DeliveryPersonDto.class));
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return deliveryPersonRepository.findAllByOrderByLastNameDesc(pageRequest).map(e -> modelMapper.map(e, DeliveryPersonDto.class));
     }
 
     public Page<DeliveryPersonDto> getAllDeliveryPersonsSortedByCreationPaged(int page, int size) {
-        Sort sort = Sort.by(Sort.Order.desc("creation"));
-        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return deliveryPersonRepository.findAllByOrderByCreationDesc(pageRequest).map(e -> modelMapper.map(e, DeliveryPersonDto.class));
+    }
 
-        Page<DeliveryPersonEntity> sortedPersonsPage = deliveryPersonRepository.findAll(pageRequest);
+    public Page<DeliveryPersonDto> getAllDeliveryPersonsSortedByNumberOfToursPaged(int page, int size) {
+
 
         return sortedPersonsPage.map(entity -> modelMapper.map(entity, DeliveryPersonDto.class));
     }

@@ -141,4 +141,18 @@ public class DeliveryPersonController{
         Page<DeliveryPersonDto> sortedDeliveryPersons = deliveryPersonService.getAllDeliveryPersonsSortedByCreationPaged(page, size);
         return new ResponseEntity<>(sortedDeliveryPersons, HttpStatus.OK);
     }
+
+    @Operation(summary = "Find all existing delivery person sorted by number of tours")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation"),
+            @ApiResponse(responseCode = "404", description = "Delivery person not found")
+    })
+    @GetMapping("/sorted/tours")
+    public ResponseEntity<Page<DeliveryPersonDto>> getAllDeliveryPersonsSortedByNumberOfToursPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<DeliveryPersonDto> sortedDeliveryPersons = deliveryPersonService.getAllDeliveryPersonsSortedByNumberOfToursPaged(page, size);
+        return new ResponseEntity<>(sortedDeliveryPersons, HttpStatus.OK);
+    }
 }

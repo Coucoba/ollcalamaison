@@ -1,7 +1,6 @@
 package com.univrouen.ollcalamaison.dto.output;
 
 import com.univrouen.ollcalamaison.dto.input.InputDeliveryDto;
-import com.univrouen.ollcalamaison.dto.input.InputTourDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,24 +13,17 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DeliveryPersonDto {
+public class TourDto {
 
-    private Long id;
+    private String name;
 
-    private String first_Name;
+    private Instant startDate;
 
-    private String last_Name;
+    private Instant endDate;
 
-    private boolean isAvailable;
-
-    private Instant creation;
+    private Long deliveryPersonId;
 
     private Set<InputDeliveryDto> deliveries;
 
     private int numberOfDeliveries;
-
-    private Set<InputTourDto> tours;
-
-    private int numberOfTours;
-
 }

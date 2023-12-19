@@ -1,12 +1,17 @@
 package com.univrouen.ollcalamaison.services;
 
-import com.univrouen.ollcalamaison.dto.DeliveryDto;
-import com.univrouen.ollcalamaison.dto.TourDto;
+import com.univrouen.ollcalamaison.dto.input.InputDeliveryDto;
+import com.univrouen.ollcalamaison.dto.input.InputTourDto;
+import com.univrouen.ollcalamaison.dto.output.DeliveryPersonDto;
+import com.univrouen.ollcalamaison.dto.output.TourDto;
 import com.univrouen.ollcalamaison.entities.DeliveryEntity;
+import com.univrouen.ollcalamaison.entities.DeliveryPersonEntity;
 import com.univrouen.ollcalamaison.entities.TourEntity;
+import com.univrouen.ollcalamaison.exceptions.DeliveryPersonNotFoundException;
 import com.univrouen.ollcalamaison.exceptions.DtoNotValidException;
 import com.univrouen.ollcalamaison.exceptions.OverlappingTourException;
 import com.univrouen.ollcalamaison.exceptions.TourNotFoundException;
+import com.univrouen.ollcalamaison.repositories.DeliveryPersonRepository;
 import com.univrouen.ollcalamaison.repositories.TourRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -25,28 +30,27 @@ import java.util.stream.Collectors;
 public class TourService {
 
     private TourRepository tourRepository;
+    private DeliveryPersonRepository deliveryPersonRepository;
     private ModelMapper modelMapper;
     private Validator validator;
 
-    public TourDto createTour(TourDto tourDto) throws DtoNotValidException, OverlappingTourException {
+    public TourDto createTour(InputTourDto tourDto) throws DtoNotValidException, OverlappingTourException {
         validateDto(tourDto);
-        validateTourDates(tourDto);
 
         TourEntity entity = modelMapper.map(tourDto, TourEntity.class);
         return modelMapper.map(tourRepository.save(entity), TourDto.class);
     }
 
-    public TourDto updateByIdTour(TourDto tourDto, Long id) throws TourNotFoundException, DtoNotValidException, OverlappingTourException {
+    public TourDto updateByIdTour(InputTourDto tourDto, Long id) throws TourNotFoundException, DtoNotValidException, OverlappingTourException {
         validateDto(tourDto);
-        validateTourDates(tourDto);
         checkTourExists(id);
 
         TourEntity actualTourEntity =
                 tourRepository.findById(id).orElseThrow(TourNotFoundException::new);
 
         actualTourEntity.setName(tourDto.getName());
-        actualTourEntity.setStartDate(tourDto.getStart());
-        actualTourEntity.setEndDate(tourDto.getEnd());
+        actualTourEntity.setStartDate(tourDto.getStartDate());
+        actualTourEntity.setEndDate(tourDto.getEndDate());
 
         TourEntity updateTourEntity = tourRepository.save(actualTourEntity);
 
@@ -58,7 +62,7 @@ public class TourService {
         tourRepository.deleteById(id);
     }
 
-    public TourDto addDeliveryToTour(Long id, List<DeliveryDto> deliveryDtos) throws TourNotFoundException, DtoNotValidException {
+    public TourDto addDeliveryToTour(Long id, List<InputDeliveryDto> deliveryDtos) throws TourNotFoundException, DtoNotValidException {
         validateDto(deliveryDtos);
         checkTourExists(id);
 
@@ -91,6 +95,29 @@ public class TourService {
         });
     }
 
+    public TourDto associateTourWithDeliveryPerson(Long tourId, Long deliveryPersonId) throws TourNotFoundException, DeliveryPersonNotFoundException, OverlappingTourException {
+        TourEntity tourEntity = tourRepository.findById(tourId)
+                .orElseThrow(TourNotFoundException::new);
+
+        DeliveryPersonEntity deliveryPersonEntity = deliveryPersonRepository.findById(deliveryPersonId)
+                .orElseThrow(DeliveryPersonNotFoundException::new);
+
+        boolean hasOverlappingTour = deliveryPersonEntity.getTours().stream()
+                .anyMatch(existingTour ->
+                        (tourEntity.getStartDate().isBefore(existingTour.getEndDate()) || tourEntity.getStartDate().equals(existingTour.getEndDate()))
+                                && (tourEntity.getEndDate().isAfter(existingTour.getStartDate()) || tourEntity.getEndDate().equals(existingTour.getStartDate())));
+
+        if (hasOverlappingTour) {
+            throw new OverlappingTourException();
+        }
+
+        tourEntity.setDeliveryPerson(deliveryPersonEntity);
+
+        TourEntity updatedTourEntity = tourRepository.save(tourEntity);
+
+        return modelMapper.map(updatedTourEntity, TourDto.class);
+    }
+
     public List<TourDto> getToursByDate(Instant searchDate) {
         List<TourEntity> tourEntities = tourRepository.findByDate(searchDate);
 
@@ -116,17 +143,4 @@ public class TourService {
             throw new TourNotFoundException();
         }
     }
-
-    private void validateTourDates(TourDto tourDto) throws OverlappingTourException, DtoNotValidException {
-        validateDto(tourDto);
-        Instant tourStart = tourDto.getStart();
-        Instant tourEnd = tourDto.getEnd();
-
-        List<TourEntity> overlappingTours = tourRepository.findOverlappingTours(tourDto.getDeliveryPersonId(), tourStart, tourEnd);
-
-        if (!overlappingTours.isEmpty()) {
-            throw new OverlappingTourException();
-        }
-    }
-
 }

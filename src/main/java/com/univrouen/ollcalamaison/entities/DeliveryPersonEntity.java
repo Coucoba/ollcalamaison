@@ -14,15 +14,16 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "DeliveryPerson")
 public class DeliveryPersonEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String first_name;
+    private String firstName;
 
-    private String last_name;
+    private String lastName;
 
     private boolean isAvailable;
 
@@ -30,4 +31,7 @@ public class DeliveryPersonEntity {
 
     @OneToMany
     private Set<TourEntity> tours;
+
+    @OneToMany
+    private Set<DeliveryEntity> deliveries;
 }
