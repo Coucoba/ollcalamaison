@@ -1,6 +1,7 @@
 package com.univrouen.ollcalamaison.exceptions;
 
-public class DtoNotValidException extends Exception {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public DtoNotValidException(){ super ("DTO_Not_Valid");}
-}
+@ResponseStatus(code = HttpStatus.NOT_ACCEPTABLE, reason = "INVALID_DTO")
+public class DtoNotValidException extends RuntimeException {}

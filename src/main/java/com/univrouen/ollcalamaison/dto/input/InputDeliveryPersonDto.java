@@ -11,9 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class InputDeliveryPersonDto {
 
-    private String first_Name;
-
-    private String last_Name;
+    private String name;
 
     private boolean isAvailable;
 }

@@ -1,6 +1,7 @@
 package com.univrouen.ollcalamaison.exceptions;
 
-public class DeliveryNotFoundException extends Exception{
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public DeliveryNotFoundException(){ super("Delivery_Not_Found");}
-}
+@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "UNKNOWN_DELIVERY")
+public class DeliveryNotFoundException extends RuntimeException{}

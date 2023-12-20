@@ -8,29 +8,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.util.Set;
 
-@Builder
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class DeliveryPersonDto {
 
     private Long id;
 
-    private String first_Name;
-
-    private String last_Name;
+    private String name;
 
     private boolean isAvailable;
 
     private Instant creation;
 
-    private Set<InputDeliveryDto> deliveries;
-
     private int numberOfDeliveries;
-
-    private Set<InputTourDto> tours;
 
     private int numberOfTours;
 

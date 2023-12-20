@@ -21,7 +21,6 @@ import java.util.List;
 
 @AllArgsConstructor
 @RestController
-@Secured("USER")
 @RequestMapping("/delivrerypersons")
 @Tag(name = "DeliveryPerson", description = "The delivery person Api")
 public class DeliveryPersonController{

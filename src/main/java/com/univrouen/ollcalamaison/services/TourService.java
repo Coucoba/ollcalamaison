@@ -23,6 +23,7 @@ import jakarta.validation.Validator;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,17 +35,14 @@ public class TourService {
     private ModelMapper modelMapper;
     private Validator validator;
 
-    public TourDto createTour(InputTourDto tourDto) throws DtoNotValidException, OverlappingTourException {
+    public TourDto createTour(InputTourDto tourDto) throws DtoNotValidException {
         validateDto(tourDto);
-
         TourEntity entity = modelMapper.map(tourDto, TourEntity.class);
         return modelMapper.map(tourRepository.save(entity), TourDto.class);
     }
 
-    public TourDto updateByIdTour(InputTourDto tourDto, Long id) throws TourNotFoundException, DtoNotValidException, OverlappingTourException {
+    public TourDto updateTourById(InputTourDto tourDto, Long id) throws TourNotFoundException, DtoNotValidException, OverlappingTourException {
         validateDto(tourDto);
-        checkTourExists(id);
-
         TourEntity actualTourEntity =
                 tourRepository.findById(id).orElseThrow(TourNotFoundException::new);
 
@@ -83,16 +81,10 @@ public class TourService {
         return modelMapper.map(tourEntity, TourDto.class);
     }
 
-    public Page<TourDto> getToursByDeliveryPersonPaged(Long deliveryPersonId, int page, int size) {
+    public Page<TourDto> getToursByDeliveryPersonPaged(String name, int page, int size) throws DeliveryPersonNotFoundException {
         PageRequest pageRequest = PageRequest.of(page, size);
-
-        Page<TourEntity> tourEntities = tourRepository.findByDeliveryPersonId(deliveryPersonId, pageRequest);
-
-        return tourEntities.map(entity -> {
-            TourDto tourDto = modelMapper.map(entity, TourDto.class);
-            tourDto.setNumberOfDeliveries(entity.getDeliveries().size());
-            return tourDto;
-        });
+        DeliveryPersonEntity deliveryPerson = deliveryPersonRepository.findByName(name).orElseThrow(DeliveryPersonNotFoundException::new);
+        return tourRepository.findAllByDeliveryPerson(deliveryPerson, pageRequest).map(e -> modelMapper.map(e, TourDto.class));
     }
 
     public TourDto associateTourWithDeliveryPerson(Long tourId, Long deliveryPersonId) throws TourNotFoundException, DeliveryPersonNotFoundException, OverlappingTourException {
@@ -118,17 +110,18 @@ public class TourService {
         return modelMapper.map(updatedTourEntity, TourDto.class);
     }
 
-    public List<TourDto> getToursByDate(Instant searchDate) {
-        List<TourEntity> tourEntities = tourRepository.findByDate(searchDate);
-
-        return tourEntities.stream()
-                .map(entity -> modelMapper.map(entity, TourDto.class))
-                .collect(Collectors.toList());
+    public Page<TourDto> getToursByDate(Instant searchDate, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return tourRepository.findByDate(searchDate, pageRequest).map(e -> modelMapper.map(e, TourDto.class));
     }
 
-    public TourDto findByIdTour(Long id) throws TourNotFoundException{
-        checkTourExists(id);
-        return modelMapper.map(tourRepository.findById(id), TourDto.class);
+    public TourDto findTourById(Long id) throws TourNotFoundException{
+        return modelMapper.map(tourRepository.findById(id).orElseThrow(TourNotFoundException::new), TourDto.class);
+    }
+
+    public Page<TourDto> getAll(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return tourRepository.findAll(pageRequest).map(e -> modelMapper.map(e, TourDto.class));
     }
 
     private <T> void validateDto(T dto) throws DtoNotValidException{

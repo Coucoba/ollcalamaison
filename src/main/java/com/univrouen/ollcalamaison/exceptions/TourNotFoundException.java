@@ -1,6 +1,7 @@
 package com.univrouen.ollcalamaison.exceptions;
 
-public class TourNotFoundException extends Exception{
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public TourNotFoundException(){ super("Tour_Not_Found");}
-}
+@ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "UNKNOWN_TOUR")
+public class TourNotFoundException extends RuntimeException{}

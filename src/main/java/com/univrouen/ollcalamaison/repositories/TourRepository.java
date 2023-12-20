@@ -1,5 +1,6 @@
 package com.univrouen.ollcalamaison.repositories;
 
+import com.univrouen.ollcalamaison.entities.DeliveryPersonEntity;
 import com.univrouen.ollcalamaison.entities.TourEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,11 +11,12 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface TourRepository extends JpaRepository<TourEntity, Long> {
 
-    Page<TourEntity> findByDeliveryPersonId(@Param("deliveryPersonId") Long deliveryPersonId, Pageable pageable);
+    Page<TourEntity> findAllByDeliveryPerson(DeliveryPersonEntity deliveryPerson, Pageable pageable);
 
     @Query("SELECT t FROM TourEntity t " +
             "WHERE t.deliveryPerson.id = :deliveryPersonId " +
@@ -27,5 +29,6 @@ public interface TourRepository extends JpaRepository<TourEntity, Long> {
 
     @Query("SELECT t FROM TourEntity t " +
             "WHERE (t.startDate <= :searchDate AND t.endDate >= :searchDate)")
-    List<TourEntity> findByDate(@Param("searchDate") Instant searchDate);
+    Page<TourEntity> findByDate(@Param("searchDate") Instant searchDate, Pageable pageable);
+
 }

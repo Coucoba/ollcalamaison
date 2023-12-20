@@ -1,6 +1,7 @@
 package com.univrouen.ollcalamaison.exceptions;
 
-public class OverlappingTourException extends Exception{
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public OverlappingTourException(){ super("Overlapping_Tour_Found");}
-}
+@ResponseStatus(code = HttpStatus.CONFLICT, reason = "CANNOT_ASSIGN_DELIVERY_PERSON")
+public class OverlappingTourException extends RuntimeException{}
