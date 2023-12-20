@@ -19,15 +19,6 @@ public interface TourRepository extends JpaRepository<TourEntity, Long> {
     Page<TourEntity> findAllByDeliveryPerson(DeliveryPersonEntity deliveryPerson, Pageable pageable);
 
     @Query("SELECT t FROM TourEntity t " +
-            "WHERE t.deliveryPerson.id = :deliveryPersonId " +
-            "AND ((t.startDate BETWEEN :tourStart AND :tourEnd) OR (t.endDate BETWEEN :tourStart AND :tourEnd))")
-    List<TourEntity> findOverlappingTours(
-            @Param("deliveryPersonId") Long deliveryPersonId,
-            @Param("tourStart") Instant tourStart,
-            @Param("tourEnd") Instant tourEnd
-    );
-
-    @Query("SELECT t FROM TourEntity t " +
             "WHERE (t.startDate <= :searchDate AND t.endDate >= :searchDate)")
     Page<TourEntity> findByDate(@Param("searchDate") Instant searchDate, Pageable pageable);
 

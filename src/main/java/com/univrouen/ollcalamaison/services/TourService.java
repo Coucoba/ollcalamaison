@@ -2,16 +2,15 @@ package com.univrouen.ollcalamaison.services;
 
 import com.univrouen.ollcalamaison.dto.input.InputDeliveryDto;
 import com.univrouen.ollcalamaison.dto.input.InputTourDto;
+import com.univrouen.ollcalamaison.dto.output.DeliveryDto;
 import com.univrouen.ollcalamaison.dto.output.DeliveryPersonDto;
 import com.univrouen.ollcalamaison.dto.output.TourDto;
 import com.univrouen.ollcalamaison.entities.DeliveryEntity;
 import com.univrouen.ollcalamaison.entities.DeliveryPersonEntity;
 import com.univrouen.ollcalamaison.entities.TourEntity;
-import com.univrouen.ollcalamaison.exceptions.DeliveryPersonNotFoundException;
-import com.univrouen.ollcalamaison.exceptions.DtoNotValidException;
-import com.univrouen.ollcalamaison.exceptions.OverlappingTourException;
-import com.univrouen.ollcalamaison.exceptions.TourNotFoundException;
+import com.univrouen.ollcalamaison.exceptions.*;
 import com.univrouen.ollcalamaison.repositories.DeliveryPersonRepository;
+import com.univrouen.ollcalamaison.repositories.DeliveryRepository;
 import com.univrouen.ollcalamaison.repositories.TourRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -32,6 +31,7 @@ public class TourService {
 
     private TourRepository tourRepository;
     private DeliveryPersonRepository deliveryPersonRepository;
+    private DeliveryRepository deliveryRepository;
     private ModelMapper modelMapper;
     private Validator validator;
 
@@ -60,20 +60,17 @@ public class TourService {
         tourRepository.deleteById(id);
     }
 
-    public TourDto addDeliveryToTour(Long id, List<InputDeliveryDto> deliveryDtos) throws TourNotFoundException, DtoNotValidException {
-        validateDto(deliveryDtos);
-        checkTourExists(id);
+    public TourDto addDeliveryToTour(Long id, List<Long> deliveriesId) throws TourNotFoundException, DtoNotValidException {
 
         TourEntity tourEntity = tourRepository.findById(id)
                 .orElseThrow(TourNotFoundException::new);
 
-        List<DeliveryEntity> deliveryEntities = deliveryDtos.stream()
-                .map(deliveryDto -> {
-                    DeliveryEntity deliveryEntity = modelMapper.map(deliveryDto, DeliveryEntity.class);
+        List<DeliveryEntity> deliveryEntities = deliveriesId.stream()
+                .map(d -> {
+                    DeliveryEntity deliveryEntity = deliveryRepository.findById(d).orElseThrow(DeliveryNotFoundException::new);
                     deliveryEntity.setTour(tourEntity);
                     return deliveryEntity;
-                })
-                .toList();
+                }).toList();
 
         tourEntity.getDeliveries().addAll(deliveryEntities);
         tourRepository.save(tourEntity);
@@ -87,7 +84,7 @@ public class TourService {
         return tourRepository.findAllByDeliveryPerson(deliveryPerson, pageRequest).map(e -> modelMapper.map(e, TourDto.class));
     }
 
-    public TourDto associateTourWithDeliveryPerson(Long tourId, Long deliveryPersonId) throws TourNotFoundException, DeliveryPersonNotFoundException, OverlappingTourException {
+    public TourDto assignTourToDeliveryPerson(Long tourId, Long deliveryPersonId) throws TourNotFoundException, DeliveryPersonNotFoundException, OverlappingTourException {
         TourEntity tourEntity = tourRepository.findById(tourId)
                 .orElseThrow(TourNotFoundException::new);
 
@@ -104,7 +101,7 @@ public class TourService {
         }
 
         tourEntity.setDeliveryPerson(deliveryPersonEntity);
-
+        deliveryPersonEntity.getTours().add(tourEntity);
         TourEntity updatedTourEntity = tourRepository.save(tourEntity);
 
         return modelMapper.map(updatedTourEntity, TourDto.class);

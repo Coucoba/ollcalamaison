@@ -1,9 +1,7 @@
 package com.univrouen.ollcalamaison.controllers;
 
 import com.univrouen.ollcalamaison.dto.input.InputTourDto;
-import com.univrouen.ollcalamaison.dto.output.DeliveryPersonDto;
 import com.univrouen.ollcalamaison.dto.output.TourDto;
-import com.univrouen.ollcalamaison.entities.TourEntity;
 import com.univrouen.ollcalamaison.exceptions.DeliveryPersonNotFoundException;
 import com.univrouen.ollcalamaison.exceptions.DtoNotValidException;
 import com.univrouen.ollcalamaison.exceptions.OverlappingTourException;
@@ -20,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.time.Instant;
+import java.util.List;
 
 @AllArgsConstructor
 @RestController
@@ -96,12 +96,56 @@ public class TourController {
         return ResponseEntity.ok(tourService.findTourById(id));
     }
 
+    @Operation(
+            summary = "Find a tour by delivery person",
+            description = "Find a tour with given delivery person name")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation"),
+            @ApiResponse(responseCode = "404", description = "Invalid delivery person name")
+    })
     @GetMapping("/deliveryPersonTour")
     public ResponseEntity<Page<TourDto>> findTourByDeliveryPerson(
             String name,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) throws DeliveryPersonNotFoundException {
         return ResponseEntity.ok(tourService.getToursByDeliveryPersonPaged(name, page, size));
+    }
+
+    @Operation(
+            summary = "Assign a delivery person",
+            description = "Assign given delivery person to tour")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation"),
+            @ApiResponse(responseCode = "404", description = "Invalid delivery person id")
+    })
+    @PostMapping("/{id}/assignDeliveryPerson")
+    public ResponseEntity<TourDto> assignTour(@PathVariable Long id, Long deliveryPersonId){
+        return ResponseEntity.ok(tourService.assignTourToDeliveryPerson(id, deliveryPersonId));
+    }
+
+    @Operation(
+            summary = "Get all tours by date",
+            description = "Get all tours that contains the given date")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation")
+    })
+    @GetMapping("/date")
+    public ResponseEntity<Page<TourDto>> findByDate(
+            Instant date,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(tourService.getToursByDate(date, page, size));
+    }
+
+    @Operation(
+            summary = "Assign deliveries to tour",
+            description = "Assign all deliveries ")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation")
+    })
+    @PostMapping("/{id}/assignDelivery")
+    public ResponseEntity<TourDto> assignDeliveries(@PathVariable Long id, List<Long> deliveriesId) {
+        return ResponseEntity.ok(tourService.addDeliveryToTour(id, deliveriesId));
     }
 
 }
