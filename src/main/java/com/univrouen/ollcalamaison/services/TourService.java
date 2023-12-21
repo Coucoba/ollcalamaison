@@ -68,6 +68,9 @@ public class TourService {
         List<DeliveryEntity> deliveryEntities = deliveriesId.stream()
                 .map(d -> {
                     DeliveryEntity deliveryEntity = deliveryRepository.findById(d).orElseThrow(DeliveryNotFoundException::new);
+                    if (deliveryEntity.getTour() != null) {
+                        throw new DeliveryAlreadyAssignedException();
+                    }
                     deliveryEntity.setTour(tourEntity);
                     return deliveryEntity;
                 }).toList();

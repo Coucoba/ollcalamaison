@@ -40,8 +40,7 @@ public class TourController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Page<TourDto> tours = tourService.getAll(page, size);
-        return new ResponseEntity<>(tours, HttpStatus.OK);
+        return ResponseEntity.ok(tourService.getAll(page, size));
     }
 
     @Operation(
