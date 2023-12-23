@@ -17,5 +17,8 @@ public class DeliveryEntity {
     private String depositAddress;
 
     @ManyToOne
+    private DeliveryPersonEntity deliveryPerson;
+
+    @ManyToOne
     private TourEntity tour;
 }

@@ -24,6 +24,6 @@ public class TourEntity {
     @ManyToOne
     private DeliveryPersonEntity deliveryPerson;
 
-    @OneToMany
+    @OneToMany(mappedBy = "tour")
     private List<DeliveryEntity> deliveries;
 }

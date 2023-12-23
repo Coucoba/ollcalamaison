@@ -11,8 +11,6 @@ import java.util.Optional;
 @Repository
 public interface DeliveryPersonRepository extends JpaRepository<DeliveryPersonEntity, Long> {
 
-    Page<DeliveryPersonEntity> findAllByOrderByNameAsc(Pageable pageable);
-    Page<DeliveryPersonEntity> findAllByOrderByCreationAsc(Pageable pageable);
     Optional<DeliveryPersonEntity> findByName(String name);
 
 }

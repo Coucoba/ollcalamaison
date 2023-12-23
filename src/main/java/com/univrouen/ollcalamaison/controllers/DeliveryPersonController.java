@@ -1,5 +1,6 @@
 package com.univrouen.ollcalamaison.controllers;
 
+import com.univrouen.ollcalamaison.dto.SearchResultDto;
 import com.univrouen.ollcalamaison.dto.input.InputDeliveryPersonDto;
 import com.univrouen.ollcalamaison.dto.output.DeliveryPersonDto;
 import com.univrouen.ollcalamaison.exceptions.DeliveryPersonNotFoundException;
@@ -34,11 +35,13 @@ public class DeliveryPersonController{
             @ApiResponse(responseCode = "200", description = "successful operation")
     })
     @GetMapping()
-    public ResponseEntity<Page<DeliveryPersonDto>> getAllDeliveryPersonsPaged(
+    public ResponseEntity<SearchResultDto<DeliveryPersonDto>> getAllDeliveryPersonsPaged(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "asc") String sortDirection,
+            @RequestParam(defaultValue = "name") String sortBy
     ) {
-        Page<DeliveryPersonDto> deliveryPersons = deliveryPersonService.findAllDeliveryPersonsPaged(page, size);
+        SearchResultDto<DeliveryPersonDto> deliveryPersons = deliveryPersonService.findAllDeliveryPersonsPaged(page, size, sortDirection, sortBy);
         return new ResponseEntity<>(deliveryPersons, HttpStatus.OK);
     }
 
@@ -103,42 +106,16 @@ public class DeliveryPersonController{
             @ApiResponse(responseCode = "404", description = "Delivery person not found")
     })
     @GetMapping("/filter")
-    public ResponseEntity<List<DeliveryPersonDto>> findDeliveryPersonsWithFilter(
+    public ResponseEntity<SearchResultDto<DeliveryPersonDto>> findDeliveryPersonsWithFilter(
             @RequestParam(required = false) Boolean isAvailable,
             @RequestParam(required = false) Instant createdAfter,
-            @RequestParam(required = false) Instant createdBefore
+            @RequestParam(required = false) Instant createdBefore,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        List<DeliveryPersonDto> filteredDeliveryPersons = deliveryPersonService
-                .findDeliveryPersonsWithFilter(isAvailable, createdAfter, createdBefore);
+        SearchResultDto<DeliveryPersonDto> filteredDeliveryPersons = deliveryPersonService
+                .findDeliveryPersonsWithFilter(isAvailable, createdAfter, createdBefore, page, size);
         return new ResponseEntity<>(filteredDeliveryPersons, HttpStatus.OK);
-    }
-
-    @Operation(summary = "Find all existing delivery person sorted by name")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation"),
-            @ApiResponse(responseCode = "404", description = "Delivery person not found")
-    })
-    @GetMapping("/sorted/name")
-    public ResponseEntity<Page<DeliveryPersonDto>> getAllDeliveryPersonsSortedByNamePaged(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ){
-        Page<DeliveryPersonDto> sortedDeliveryPersons = deliveryPersonService.getAllDeliveryPersonsSortedByNamePaged(page, size);
-        return new ResponseEntity<>(sortedDeliveryPersons, HttpStatus.OK);
-    }
-
-    @Operation(summary = "Find all existing delivery person sorted by creation")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation"),
-            @ApiResponse(responseCode = "404", description = "Delivery person not found")
-    })
-    @GetMapping("/sorted/creation")
-    public ResponseEntity<Page<DeliveryPersonDto>> getAllDeliveryPersonsSortedByCreationPaged(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        Page<DeliveryPersonDto> sortedDeliveryPersons = deliveryPersonService.getAllDeliveryPersonsSortedByCreationPaged(page, size);
-        return new ResponseEntity<>(sortedDeliveryPersons, HttpStatus.OK);
     }
 
     @Operation(summary = "Find all existing delivery person sorted by number of tours")
@@ -147,11 +124,11 @@ public class DeliveryPersonController{
             @ApiResponse(responseCode = "404", description = "Delivery person not found")
     })
     @GetMapping("/sorted/tours")
-    public ResponseEntity<Page<DeliveryPersonDto>> getAllDeliveryPersonsSortedByNumberOfToursPaged(
+    public ResponseEntity<SearchResultDto<DeliveryPersonDto>> getAllDeliveryPersonsSortedByNumberOfToursPaged(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Page<DeliveryPersonDto> sortedDeliveryPersons = deliveryPersonService.getAllDeliveryPersonsSortedByNumberOfToursPaged(page, size);
+        SearchResultDto<DeliveryPersonDto> sortedDeliveryPersons = deliveryPersonService.getAllDeliveryPersonsSortedByNumberOfToursPaged(page, size);
         return new ResponseEntity<>(sortedDeliveryPersons, HttpStatus.OK);
     }
 }

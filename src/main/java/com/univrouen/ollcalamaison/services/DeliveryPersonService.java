@@ -1,5 +1,6 @@
 package com.univrouen.ollcalamaison.services;
 
+import com.univrouen.ollcalamaison.dto.SearchResultDto;
 import com.univrouen.ollcalamaison.dto.output.DeliveryPersonDto;
 import com.univrouen.ollcalamaison.dto.input.InputDeliveryPersonDto;
 import com.univrouen.ollcalamaison.entities.DeliveryPersonEntity;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -34,12 +34,14 @@ public class DeliveryPersonService {
         return modelMapper.map(deliveryPersonRepository.save(deliveryPerson), DeliveryPersonDto.class);
     }
 
-    public Page<DeliveryPersonDto> findAllDeliveryPersonsPaged(int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size);
+    public SearchResultDto<DeliveryPersonDto> findAllDeliveryPersonsPaged(int page, int size, String sortDirection, String sortBy) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Sort sort = Sort.by(direction,sortBy);
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
 
         Page<DeliveryPersonEntity> deliveryPersonPage = deliveryPersonRepository.findAll(pageRequest);
 
-        return deliveryPersonPage.map(entity -> modelMapper.map(entity, DeliveryPersonDto.class));
+        return SearchResultDto.from(deliveryPersonPage.map(entity -> modelMapper.map(entity, DeliveryPersonDto.class)));
     }
 
     public DeliveryPersonDto findByIdDeliveryPerson(Long id) throws DeliveryPersonNotFoundException {
@@ -66,33 +68,29 @@ public class DeliveryPersonService {
         return modelMapper.map(updateDeliveryPersonEntity, DeliveryPersonDto.class);
     }
 
-    public List<DeliveryPersonDto> findDeliveryPersonsWithFilter(Boolean isAvailable, Instant createdAfter, Instant createdBefore) {
-        List<DeliveryPersonEntity> filteredPersons = deliveryPersonRepository.findAll()
+    public SearchResultDto<DeliveryPersonDto> findDeliveryPersonsWithFilter(Boolean isAvailable, Instant createdAfter, Instant createdBefore, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<DeliveryPersonEntity> pageNotFiltered = deliveryPersonRepository.findAll(pageRequest);
+        List<DeliveryPersonEntity> filteredPersons = pageNotFiltered
                 .stream()
                 .filter(person -> (isAvailable == null || person.isAvailable() == isAvailable)
                         && (createdAfter == null || person.getCreation().isAfter(createdAfter))
                         && (createdBefore == null || person.getCreation().isBefore(createdBefore)))
                 .toList();
+        SearchResultDto<DeliveryPersonDto> result = new SearchResultDto<>();
+        result.setData(filteredPersons.stream().map(e -> modelMapper.map(e, DeliveryPersonDto.class)).toList());
+        result.setItemsPerPage(pageNotFiltered.getNumberOfElements());
+        result.setItemCount(pageNotFiltered.getNumberOfElements());
+        result.setPage(pageNotFiltered.getNumber());
+        result.setPageCount(pageNotFiltered.getTotalPages());
 
-        return filteredPersons.stream()
-                .map(entity -> modelMapper.map(entity, DeliveryPersonDto.class))
-                .collect(Collectors.toList());
+        return result;
     }
 
-    public Page<DeliveryPersonDto> getAllDeliveryPersonsSortedByNamePaged(int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size);
-        return deliveryPersonRepository.findAllByOrderByNameAsc(pageRequest).map(e -> modelMapper.map(e, DeliveryPersonDto.class));
-    }
-
-    public Page<DeliveryPersonDto> getAllDeliveryPersonsSortedByCreationPaged(int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page, size);
-        return deliveryPersonRepository.findAllByOrderByCreationAsc(pageRequest).map(e -> modelMapper.map(e, DeliveryPersonDto.class));
-    }
-
-    public Page<DeliveryPersonDto> getAllDeliveryPersonsSortedByNumberOfToursPaged(int page, int size) {
-        Sort sort = Sort.by("CONT(tours)");
+    public SearchResultDto<DeliveryPersonDto> getAllDeliveryPersonsSortedByNumberOfToursPaged(int page, int size) {
+        Sort sort = Sort.by("");
         PageRequest pageRequest = PageRequest.of(page, size, sort);
-        return deliveryPersonRepository.findAll(pageRequest).map(e -> modelMapper.map(e, DeliveryPersonDto.class));
+        return SearchResultDto.from(deliveryPersonRepository.findAll(pageRequest).map(e -> modelMapper.map(e, DeliveryPersonDto.class)));
     }
 
     private <T> void validateDto(T dto) throws DtoNotValidException{

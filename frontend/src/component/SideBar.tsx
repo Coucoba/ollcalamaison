@@ -6,10 +6,10 @@ import { PiPackageLight } from "react-icons/pi"
 
 export function SideBar() {
     return (
-    <Sidebar aria-label="Default sidebar example" >
+    <Sidebar className='w-32 h-full' aria-label="Default sidebar example" >
       <Sidebar.Items>
         <Sidebar.ItemGroup>
-          <Sidebar.Item href="#" icon={IoAccessibility}>
+          <Sidebar.Item href="/deliverypersons" icon={IoAccessibility}>
             Livreur
           </Sidebar.Item>
           <Sidebar.Item href="#" icon={FaTruck}>

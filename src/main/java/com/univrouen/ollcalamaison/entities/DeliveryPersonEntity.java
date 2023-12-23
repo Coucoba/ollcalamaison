@@ -27,9 +27,9 @@ public class DeliveryPersonEntity {
 
     private Instant creation;
 
-    @OneToMany(mappedBy = "Tour")
+    @OneToMany(mappedBy = "deliveryPerson")
     private Set<TourEntity> tours;
 
-    @OneToMany(mappedBy = "Delivery")
+    @OneToMany(mappedBy = "deliveryPerson")
     private Set<DeliveryEntity> deliveries;
 }
