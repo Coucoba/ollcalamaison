@@ -1,14 +1,17 @@
 import client from "./client";
-import { DeliveryPersonDto, SearchResultDto } from "./type";
-
-export type GetDeliveryPersonRequest = {
-    page?: number;
-    size?: number;
-    sortBy?: "name" | "isAvailable" | "creation";
-    sortDirection?: "asc" | "desc";
-}
+import { DeliveryPersonDto } from "./type";
 
 export async function getAllDeliveryPerson() {
     var response = await client.get("delivrerypersons");
-    return response.json<SearchResultDto<DeliveryPersonDto>>();
+    return response.json<DeliveryPersonDto[]>();
+}
+
+export type DeliveryPersonCreationRequest = {
+    name: String;
+    isAvailable: boolean;
+};
+
+export async function createDeliveryPerson(data:DeliveryPersonCreationRequest) {
+    var response = await client.post("delivrerypersons", {json: data})
+    return response.json<DeliveryPersonDto>();
 }

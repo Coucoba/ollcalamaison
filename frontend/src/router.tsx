@@ -4,6 +4,7 @@ import { Layout } from "./component/Layout";
 import route from "./route"
 import { HomePage } from "./pages/HomePage";
 import { DeliveryPersonPage } from "./pages/DeliveryPersonPage";
+import { DeliveryPersonDetailPage } from "./pages/DeliveryPersonDetailPage";
 
 const router = createBrowserRouter([
     {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
             {
                 path: route.DELIVERY_PERSON,
                 element: <DeliveryPersonPage/>
+            },
+            {
+                path: route.DELIVERY_PERSON_DETAIL,
+                element: <DeliveryPersonDetailPage/>
             }
         ]
     }

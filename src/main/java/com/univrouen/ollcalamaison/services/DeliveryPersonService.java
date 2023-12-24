@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -32,6 +33,10 @@ public class DeliveryPersonService {
         DeliveryPersonEntity deliveryPerson = modelMapper.map(dto, DeliveryPersonEntity.class);
         deliveryPerson.setCreation(Instant.now());
         return modelMapper.map(deliveryPersonRepository.save(deliveryPerson), DeliveryPersonDto.class);
+    }
+
+    public List<DeliveryPersonDto> findAllDeliveryPerson() {
+        return deliveryPersonRepository.findAll().stream().map(e -> modelMapper.map(e, DeliveryPersonDto.class)).toList();
     }
 
     public SearchResultDto<DeliveryPersonDto> findAllDeliveryPersonsPaged(int page, int size, String sortDirection, String sortBy) {

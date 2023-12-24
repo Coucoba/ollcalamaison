@@ -34,7 +34,7 @@ public class DeliveryPersonController{
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation")
     })
-    @GetMapping()
+    @GetMapping("/paged")
     public ResponseEntity<SearchResultDto<DeliveryPersonDto>> getAllDeliveryPersonsPaged(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -43,6 +43,11 @@ public class DeliveryPersonController{
     ) {
         SearchResultDto<DeliveryPersonDto> deliveryPersons = deliveryPersonService.findAllDeliveryPersonsPaged(page, size, sortDirection, sortBy);
         return new ResponseEntity<>(deliveryPersons, HttpStatus.OK);
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<DeliveryPersonDto>> getAllDeliveryPerson(){
+        return ResponseEntity.ok(deliveryPersonService.findAllDeliveryPerson());
     }
 
     @Operation(
