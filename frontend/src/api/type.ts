@@ -8,25 +8,25 @@ export type SearchResultDto<T> = {
 
 export type DeliveryDto = {
     id: number;
-    pickupAddress: String;
-    depositAddress: String;
+    pickupAddress: string;
+    depositAddress: string;
     tour: TourDto
 }
 
 export type TourDto = {
     id: number;
-    name: String;
-    startDate: String;
-    endDate: String;
+    name: string;
+    startDate: string;
+    endDate: string;
     deliveryPerson: DeliveryPersonDto | null;
     deliveries: DeliveryDto[] | null;
 }
 
 export type DeliveryPersonDto = {
     id: number;
-    name: String;
-    isAvailable: boolean;
-    creationDate: String;
+    name: string;
+    available: boolean;
+    creationDate: string;
     numberOfDeliveries: number;
     numberOfTour: number;
 }

@@ -59,6 +59,7 @@ public class DeliveryPersonController{
     })
     @PostMapping()
     public ResponseEntity<DeliveryPersonDto> create(@RequestBody InputDeliveryPersonDto deliveryPersonDto) throws DtoNotValidException {
+        System.out.println(deliveryPersonDto);
         var deliveryPerson = deliveryPersonService.createDeliveryPerson(deliveryPersonDto);
         return new ResponseEntity<>(deliveryPerson, HttpStatus.CREATED);
     }

@@ -55,7 +55,7 @@ export function DeliveryPersonPage(){
     const handleClose = () => setOpen(false);
 
     const {mutate: createDeliveryPerson } = useCreateDeliveryPerson();
-    const { control, formState, handleSubmit } = useForm({defaultValues: { name: "", isAvailable: true }});
+    const { control, formState, handleSubmit } = useForm({defaultValues: { name: "", available: true }});
     const navigate = useNavigate();
 
     
@@ -112,11 +112,11 @@ export function DeliveryPersonPage(){
                     />
                     <FormHelperText>{formState.errors.name?.message}</FormHelperText>
                 </FormControl>
-                <FormControl error={!!formState.errors.isAvailable}>
+                <FormControl error={!!formState.errors.available}>
                     <FormLabel>Disponible</FormLabel>
                     <Controller 
                         control={control} 
-                        name="isAvailable" 
+                        name="available" 
                         render={({field}) => (<Switch checked={field.value}  {...field}/>)}
                     />
                 </FormControl>
