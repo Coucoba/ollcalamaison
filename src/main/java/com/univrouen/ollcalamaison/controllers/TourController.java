@@ -35,12 +35,18 @@ public class TourController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation")
     })
-    @GetMapping()
+    @GetMapping("/paged")
     public ResponseEntity<Page<TourDto>> getAllToursPaged(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.ok(tourService.getAll(page, size));
+        return ResponseEntity.ok(tourService.getAllPaged(page, size));
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<TourDto>> getAllTours(
+    ) {
+        return ResponseEntity.ok(tourService.getAll());
     }
 
     @Operation(
@@ -143,7 +149,7 @@ public class TourController {
             @ApiResponse(responseCode = "200", description = "successful operation")
     })
     @PostMapping("/{id}/assignDelivery")
-    public ResponseEntity<TourDto> assignDeliveries(@PathVariable Long id, List<Long> deliveriesId) {
+    public ResponseEntity<TourDto> assignDeliveries(@PathVariable Long id, Long deliveriesId) {
         return ResponseEntity.ok(tourService.addDeliveryToTour(id, deliveriesId));
     }
 

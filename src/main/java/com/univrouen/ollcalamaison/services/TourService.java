@@ -4,6 +4,7 @@ import com.univrouen.ollcalamaison.dto.input.InputDeliveryDto;
 import com.univrouen.ollcalamaison.dto.input.InputTourDto;
 import com.univrouen.ollcalamaison.dto.output.DeliveryDto;
 import com.univrouen.ollcalamaison.dto.output.DeliveryPersonDto;
+import com.univrouen.ollcalamaison.dto.output.DeliverySimplifiedDto;
 import com.univrouen.ollcalamaison.dto.output.TourDto;
 import com.univrouen.ollcalamaison.entities.DeliveryEntity;
 import com.univrouen.ollcalamaison.entities.DeliveryPersonEntity;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import jakarta.validation.Validator;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,7 +40,16 @@ public class TourService {
     public TourDto createTour(InputTourDto tourDto) throws DtoNotValidException {
         validateDto(tourDto);
         TourEntity entity = modelMapper.map(tourDto, TourEntity.class);
-        return modelMapper.map(tourRepository.save(entity), TourDto.class);
+        TourEntity savedTourEntity = tourRepository.save(entity);
+        return TourDto.builder()
+                .id(savedTourEntity.getId())
+                .name(savedTourEntity.getName())
+                .startDate(savedTourEntity.getStartDate())
+                .endDate(savedTourEntity.getEndDate())
+                .deliveries(
+                        savedTourEntity.getDeliveries().stream().map(d -> modelMapper.map(d, DeliverySimplifiedDto.class)).toList()
+                )
+                .build();
     }
 
     public TourDto updateTourById(InputTourDto tourDto, Long id) throws TourNotFoundException, DtoNotValidException, OverlappingTourException {
@@ -52,7 +63,15 @@ public class TourService {
 
         TourEntity updateTourEntity = tourRepository.save(actualTourEntity);
 
-        return modelMapper.map(updateTourEntity, TourDto.class);
+        return TourDto.builder()
+                .id(updateTourEntity.getId())
+                .name(updateTourEntity.getName())
+                .startDate(updateTourEntity.getStartDate())
+                .endDate(updateTourEntity.getEndDate())
+                .deliveries(
+                        updateTourEntity.getDeliveries().stream().map(d -> modelMapper.map(d, DeliverySimplifiedDto.class)).toList()
+                )
+                .build();
     }
 
     public void deleteByIdTour(Long id) throws TourNotFoundException{
@@ -60,25 +79,29 @@ public class TourService {
         tourRepository.deleteById(id);
     }
 
-    public TourDto addDeliveryToTour(Long id, List<Long> deliveriesId) throws TourNotFoundException, DtoNotValidException {
+    public TourDto addDeliveryToTour(Long id, Long deliveryId) throws TourNotFoundException, DtoNotValidException {
 
         TourEntity tourEntity = tourRepository.findById(id)
                 .orElseThrow(TourNotFoundException::new);
 
-        List<DeliveryEntity> deliveryEntities = deliveriesId.stream()
-                .map(d -> {
-                    DeliveryEntity deliveryEntity = deliveryRepository.findById(d).orElseThrow(DeliveryNotFoundException::new);
-                    if (deliveryEntity.getTour() != null) {
-                        throw new DeliveryAlreadyAssignedException();
-                    }
-                    deliveryEntity.setTour(tourEntity);
-                    return deliveryEntity;
-                }).toList();
+        DeliveryEntity deliveryEntity = deliveryRepository.findById(deliveryId).orElseThrow(DeliveryNotFoundException::new);
+        if (deliveryEntity.getTour() != null) {
+            throw new DeliveryAlreadyAssignedException();
+        }
+        deliveryEntity.setTour(tourEntity);
 
-        tourEntity.getDeliveries().addAll(deliveryEntities);
-        tourRepository.save(tourEntity);
+        tourEntity.getDeliveries().add(deliveryEntity);
+        TourEntity savedTourEntity =  tourRepository.save(tourEntity);
 
-        return modelMapper.map(tourEntity, TourDto.class);
+        return TourDto.builder()
+                .id(savedTourEntity.getId())
+                .name(savedTourEntity.getName())
+                .startDate(savedTourEntity.getStartDate())
+                .endDate(savedTourEntity.getEndDate())
+                .deliveries(
+                        savedTourEntity.getDeliveries().stream().map(d -> modelMapper.map(d, DeliverySimplifiedDto.class)).toList()
+                )
+                .build();
     }
 
     public Page<TourDto> getToursByDeliveryPersonPaged(String name, int page, int size) throws DeliveryPersonNotFoundException {
@@ -107,21 +130,72 @@ public class TourService {
         deliveryPersonEntity.getTours().add(tourEntity);
         TourEntity updatedTourEntity = tourRepository.save(tourEntity);
 
-        return modelMapper.map(updatedTourEntity, TourDto.class);
+        return TourDto.builder()
+                .id(updatedTourEntity.getId())
+                .name(updatedTourEntity.getName())
+                .startDate(updatedTourEntity.getStartDate())
+                .endDate(updatedTourEntity.getEndDate())
+                .deliveries(
+                        updatedTourEntity.getDeliveries().stream().map(d -> modelMapper.map(d, DeliverySimplifiedDto.class)).toList()
+                )
+                .build();
     }
 
     public Page<TourDto> getToursByDate(Instant searchDate, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        return tourRepository.findByDate(searchDate, pageRequest).map(e -> modelMapper.map(e, TourDto.class));
+        Page<TourEntity> tourEntities = tourRepository.findByDate(searchDate, pageRequest);
+        return tourEntities.map(
+                e -> TourDto.builder()
+                        .id(e.getId())
+                        .name(e.getName())
+                        .startDate(e.getStartDate())
+                        .endDate(e.getEndDate())
+                        .deliveries(
+                                e.getDeliveries().stream().map(d -> modelMapper.map(d, DeliverySimplifiedDto.class)).toList()
+                        )
+                        .build()
+
+        );
     }
 
     public TourDto findTourById(Long id) throws TourNotFoundException{
         return modelMapper.map(tourRepository.findById(id).orElseThrow(TourNotFoundException::new), TourDto.class);
     }
 
-    public Page<TourDto> getAll(int page, int size) {
+    public Page<TourDto> getAllPaged(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page, size);
-        return tourRepository.findAll(pageRequest).map(e -> modelMapper.map(e, TourDto.class));
+        Page<TourEntity> tourEntities = tourRepository.findAll(pageRequest);
+        return
+                tourEntities.map(
+                        e -> TourDto.builder()
+                                .id(e.getId())
+                                .name(e.getName())
+                                .startDate(e.getStartDate())
+                                .endDate(e.getEndDate())
+                                .deliveries(
+                                        e.getDeliveries().stream().map(d -> modelMapper.map(d, DeliverySimplifiedDto.class)).toList()
+                                )
+                                .build()
+
+                );
+    }
+
+    public List<TourDto> getAll() {
+        List<TourEntity> tourList = tourRepository.findAll();
+        return
+        tourList.stream().map(
+                e -> TourDto.builder()
+                        .id(e.getId())
+                        .name(e.getName())
+                        .startDate(e.getStartDate())
+                        .endDate(e.getEndDate())
+                        .deliveries(
+                                e.getDeliveries().stream().map(d -> modelMapper.map(d, DeliverySimplifiedDto.class)).toList()
+                        )
+                        .build()
+
+        ).toList();
+
     }
 
     private <T> void validateDto(T dto) throws DtoNotValidException{

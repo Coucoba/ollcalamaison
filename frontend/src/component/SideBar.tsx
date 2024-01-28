@@ -12,10 +12,10 @@ export function SideBar() {
           <Sidebar.Item href="/deliverypersons" icon={IoAccessibility}>
             Livreur
           </Sidebar.Item>
-          <Sidebar.Item href="#" icon={FaTruck}>
+          <Sidebar.Item href="/tours" icon={FaTruck}>
             Tournée
           </Sidebar.Item>
-          <Sidebar.Item href="#" icon={PiPackageLight}>
+          <Sidebar.Item href="/deliveries" icon={PiPackageLight}>
             Livraison
           </Sidebar.Item>
         </Sidebar.ItemGroup>

@@ -1,13 +1,18 @@
 package com.univrouen.ollcalamaison.dto.output;
 
-import com.univrouen.ollcalamaison.dto.input.InputDeliveryDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.util.Set;
+import java.util.List;
 
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TourDto {
 
     private Long id;
@@ -20,7 +25,5 @@ public class TourDto {
 
     private DeliveryPersonDto deliveryPerson;
 
-    private Set<DeliveryDto> deliveries;
-
-    private int numberOfDeliveries;
+    private List<DeliverySimplifiedDto> deliveries;
 }

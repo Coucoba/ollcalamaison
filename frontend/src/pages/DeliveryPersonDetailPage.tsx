@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom"
 import { useDeleteDeliveryPerson, useFindDeliveryPersonById, useUpdateDeliveryPerson } from "../hooks/useDeliveryPerson";
-import { Box, Button, FormControl, FormHelperText, FormLabel, Input, Switch, TextField, Typography } from "@mui/material";
+import { Box, Button, FormControl, FormHelperText, FormLabel, Input, Switch, Typography } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import dayjs from "dayjs";
 import { useEffect } from "react";
@@ -38,33 +38,34 @@ export function DeliveryPersonDetailPage() {
                     textAlign: "start",
                     gap: 3,
                 }}>
-                <FormControl error={!!formState.errors.name}>
-                    <FormLabel>Nom</FormLabel>
-                    <Controller 
-                        control={control} 
-                        name="name" 
-                        render={({field}) => (<Input placeholder="DeliveryPersonName" {...field}/>)}
-                        rules={{
+                    <FormControl error={!!formState.errors.name}>
+                        <FormLabel>Nom</FormLabel>
+                            <Controller 
+                            control={control} 
+                            name="name" 
+                            render={({field}) => (<Input placeholder="DeliveryPersonName" {...field}/>)}
+                            rules={{
                             required: {
                                 value: true,
                                 message: "Champ obligatoire"
                             }
                         }}
                     />
-                    <FormHelperText>{formState.errors.name?.message}</FormHelperText>
-                </FormControl>
-                <FormControl error={!!formState.errors.available}>
-                    <FormLabel>Disponible</FormLabel>
-                    <Controller 
-                        control={control} 
-                        name="available" 
-                        render={({field}) => (<Switch checked={field.value}  {...field}/>)}
-                    />
-                </FormControl>
-                <Typography variant="body1">{dayjs(result?.creationDate).format("DD/MM/YYYY HH:mm")}</Typography>
-                <Button variant="contained" color="success" type="submit">Valider</Button>
-            <Button variant="contained" color="error" onClick={() => deleteDeliveryPerson(undefined, {onSuccess: () => navigate(`/deliverypersons`)})}>Supprimer</Button>
-            </Box>
+                        <FormHelperText>{formState.errors.name?.message}</FormHelperText>
+                    </FormControl>
+                    <FormControl error={!!formState.errors.available}>
+                        <FormLabel>Disponible</FormLabel>
+                        <Controller 
+                            control={control} 
+                            name="available" 
+                            render={({field}) => (<Switch checked={field.value}  {...field}/>)}
+                        />
+                    </FormControl>
+                    <FormLabel>Date de création</FormLabel>
+                    <Typography variant="body1">{dayjs(result?.creationDate).format("DD/MM/YYYY HH:mm")}</Typography>
+                    <Button variant="contained" color="success" type="submit">Valider</Button>
+                    <Button variant="contained" color="error" onClick={() => deleteDeliveryPerson(undefined, {onSuccess: () => navigate(`/deliverypersons`)})}>Supprimer</Button>
+                </Box>
             </form>
         </>
     )

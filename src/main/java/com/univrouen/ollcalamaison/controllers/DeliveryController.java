@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @AllArgsConstructor
 @RestController
@@ -30,12 +31,17 @@ public class DeliveryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation")
     })
-    @GetMapping()
-    public ResponseEntity<Page<DeliveryDto>> getAllDeliveries(
+    @GetMapping("/paged")
+    public ResponseEntity<Page<DeliveryDto>> getAllDeliveriesPaged(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.ok(deliveryService.getAllDeliveries(page, size));
+        return ResponseEntity.ok(deliveryService.getAllDeliveriesPaged(page, size));
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<DeliveryDto>> getAllDeliveries() {
+        return ResponseEntity.ok(deliveryService.getAllDeliveries());
     }
 
     @Operation(

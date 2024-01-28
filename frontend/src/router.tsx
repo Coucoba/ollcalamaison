@@ -5,6 +5,8 @@ import route from "./route"
 import { HomePage } from "./pages/HomePage";
 import { DeliveryPersonPage } from "./pages/DeliveryPersonPage";
 import { DeliveryPersonDetailPage } from "./pages/DeliveryPersonDetailPage";
+import { ToursPage } from "./pages/ToursPage";
+import { DeliveryPage } from "./pages/DeliveryPage";
 
 const router = createBrowserRouter([
     {
@@ -22,6 +24,14 @@ const router = createBrowserRouter([
             {
                 path: route.DELIVERY_PERSON_DETAIL,
                 element: <DeliveryPersonDetailPage/>
+            },
+            {
+                path: route.TOURS,
+                element: <ToursPage/>
+            },
+            {
+                path: route.DELIVERIES,
+                element: <DeliveryPage/>
             }
         ]
     }

@@ -13,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class DeliveryService {
@@ -43,9 +45,13 @@ public class DeliveryService {
         }
     }
 
-    public Page<DeliveryDto> getAllDeliveries(int page, int size) {
+    public Page<DeliveryDto> getAllDeliveriesPaged(int page, int size) {
         PageRequest request = PageRequest.of(page, size);
         return deliveryRepository.findAll(request).map(d -> modelMapper.map(d, DeliveryDto.class));
+    }
+
+    public List<DeliveryDto> getAllDeliveries() {
+        return deliveryRepository.findAll().stream().map(d -> modelMapper.map(d, DeliveryDto.class)).toList();
     }
 
     public DeliveryDto findById(Long id) {
